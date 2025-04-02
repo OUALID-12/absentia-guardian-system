@@ -33,7 +33,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <div className="flex min-h-screen bg-gray-50">
       {currentUser.role === "student" ? <StudentSidebar /> : <SupervisorSidebar />}
       
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 md:ml-64">
         <header className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white border-b shadow-sm">
           <h1 className="text-xl font-bold text-success-700">
             Système de Suivi des Absences

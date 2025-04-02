@@ -1,14 +1,14 @@
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calendar, Home, Users, User } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SupervisorSidebar = () => {
   const { currentUser } = useAuth();
   
   const navItems = [
-    { icon: Home, label: "Tableau de bord", path: "/supervisor/dashboard" },
+    { icon: LayoutDashboard, label: "Tableau de bord", path: "/supervisor/dashboard" },
     { icon: Calendar, label: "Suivi des absences", path: "/supervisor/absences" },
     { icon: Users, label: "Classes", path: "/supervisor/classes" },
     { icon: User, label: "Profile", path: "/supervisor/profile" },
@@ -26,14 +26,14 @@ const SupervisorSidebar = () => {
         <p className="text-sm text-gray-500">Superviseur</p>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-4">
         <ul className="space-y-1 px-2">
           {navItems.map((item) => (
             <li key={item.path}>
               <NavLink
                 to={item.path}
                 className={({ isActive }) => cn(
-                  "flex items-center space-x-3 px-4 py-2.5 rounded-md text-sm font-medium transition-all",
+                  "flex items-center space-x-3 px-4 py-3 rounded-md text-sm font-medium transition-all",
                   isActive 
                     ? "bg-success-50 text-success-700" 
                     : "text-gray-700 hover:bg-gray-100"

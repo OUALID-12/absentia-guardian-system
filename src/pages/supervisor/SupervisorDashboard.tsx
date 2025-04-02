@@ -17,6 +17,7 @@ const SupervisorDashboard = () => {
   const totalAbsences = absences.length;
   const justifiedAbsences = absences.filter(a => a.justified).length;
   const justificationRate = (justifiedAbsences / totalAbsences * 100).toFixed(1);
+  const unjustifiedAbsences = totalAbsences - justifiedAbsences;
   
   // Chart data
   const classAbsenceStats = getClassAbsenceStats();
@@ -36,80 +37,92 @@ const SupervisorDashboard = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
           Tableau de bord - Superviseur
         </h1>
         
-        <div className="grid gap-6 md:grid-cols-4">
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Total Étudiants</CardTitle>
-              <Users className="h-4 w-4 text-gray-400" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-success-700">{totalStudents}</div>
-              <p className="text-xs text-gray-500 mt-1">Dans toutes les classes</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-0 shadow-sm">
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card className="border-0 shadow-md relative overflow-hidden">
+            <div className="absolute left-0 top-0 h-full w-1 bg-success-500"></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-gray-500">Total Absences</CardTitle>
-              <Clock className="h-4 w-4 text-gray-400" />
+              <Clock className="h-5 w-5 text-success-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-success-700">{totalAbsences}</div>
+              <div className="text-4xl font-bold text-success-700">{totalAbsences}</div>
               <p className="text-xs text-gray-500 mt-1">Ce semestre</p>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-md relative overflow-hidden">
+            <div className="absolute left-0 top-0 h-full w-1 bg-success-500"></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-gray-500">Absences Justifiées</CardTitle>
-              <UserCheck className="h-4 w-4 text-gray-400" />
+              <UserCheck className="h-5 w-5 text-success-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-success-700">{justifiedAbsences}</div>
+              <div className="text-4xl font-bold text-success-700">{justifiedAbsences}</div>
               <p className="text-xs text-gray-500 mt-1">{justificationRate}% du total</p>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-md relative overflow-hidden">
+            <div className="absolute left-0 top-0 h-full w-1 bg-red-500"></div>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-gray-500">À suivre</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-gray-400" />
+              <AlertTriangle className="h-5 w-5 text-red-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-success-700">
-                {totalAbsences - justifiedAbsences}
+              <div className="text-4xl font-bold text-red-500">
+                {unjustifiedAbsences}
               </div>
               <p className="text-xs text-gray-500 mt-1">Absences non justifiées</p>
             </CardContent>
           </Card>
         </div>
         
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="border-0 shadow-sm md:col-span-2">
-            <CardHeader>
-              <CardTitle>Absences par classe</CardTitle>
-              <CardDescription>Répartition des absences par classe</CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={classAbsenceStats}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="className" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="justified" name="Justifiées" fill="#10B981" />
-                  <Bar dataKey="unjustified" name="Non Justifiées" fill="#F87171" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Card className="border-0 shadow-md h-full">
+              <CardHeader>
+                <CardTitle>Absences par classe</CardTitle>
+                <CardDescription>Répartition des absences par classe</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={classAbsenceStats} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="className" axisLine={false} tickLine={false} />
+                    <YAxis axisLine={false} tickLine={false} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '0.5rem'
+                      }}
+                    />
+                    <Legend />
+                    <Bar 
+                      dataKey="justified" 
+                      name="Justifiées" 
+                      fill="#10B981" 
+                      radius={[4, 4, 0, 0]} 
+                      barSize={30}
+                    />
+                    <Bar 
+                      dataKey="unjustified" 
+                      name="Non Justifiées" 
+                      fill="#F87171" 
+                      radius={[4, 4, 0, 0]} 
+                      barSize={30}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
           
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-md">
             <CardHeader>
               <CardTitle>Répartition des absences</CardTitle>
               <CardDescription>Justifiées vs Non justifiées</CardDescription>
@@ -126,19 +139,27 @@ const SupervisorDashboard = () => {
                     paddingAngle={5}
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip 
+                    formatter={(value, name) => [`${value} absences`, name]}
+                    contentStyle={{ 
+                      backgroundColor: 'white',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '0.5rem'
+                    }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
         
-        <Card className="border-0 shadow-sm">
+        <Card className="border-0 shadow-md">
           <CardHeader>
             <CardTitle>Dernières absences non justifiées</CardTitle>
             <CardDescription>Absences nécessitant un suivi</CardDescription>
@@ -148,11 +169,11 @@ const SupervisorDashboard = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left">
-                    <th className="pb-2 font-medium text-gray-500">Étudiant</th>
-                    <th className="pb-2 font-medium text-gray-500">Classe</th>
-                    <th className="pb-2 font-medium text-gray-500">Cours</th>
-                    <th className="pb-2 font-medium text-gray-500">Date</th>
-                    <th className="pb-2 font-medium text-gray-500">Délai</th>
+                    <th className="pb-3 font-medium text-gray-500">Étudiant</th>
+                    <th className="pb-3 font-medium text-gray-500">Classe</th>
+                    <th className="pb-3 font-medium text-gray-500">Cours</th>
+                    <th className="pb-3 font-medium text-gray-500">Date</th>
+                    <th className="pb-3 font-medium text-gray-500">Délai</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
