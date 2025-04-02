@@ -130,14 +130,14 @@ const SupervisorAbsences = () => {
             
             <Select 
               value={selectedClass || ""} 
-              onValueChange={value => setSelectedClass(value || null)}
+              onValueChange={value => setSelectedClass(value === "all" ? null : value)}
             >
               <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="Filtrer par classe" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="">Toutes les classes</SelectItem>
+                  <SelectItem value="all">Toutes les classes</SelectItem>
                   {classes.map(c => (
                     <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
                   ))}
