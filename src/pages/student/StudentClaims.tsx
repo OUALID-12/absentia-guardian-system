@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { absences, justifications } from "@/lib/mock-data";
 import { Plus, FileText, Upload, Check, X, Clock } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -33,9 +33,11 @@ const StudentClaims = () => {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("pending");
   const [selectedAbsence, setSelectedAbsence] = useState<string | null>(null);
   const [reason, setReason] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [localJustifications, setLocalJustifications] = useState([...justifications]);
   
   if (!currentUser) return null;
   
@@ -45,19 +47,45 @@ const StudentClaims = () => {
   );
   
   // Filter justifications for the current student
-  const studentJustifications = justifications.filter(
+  const studentJustifications = localJustifications.filter(
     justification => justification.studentId === currentUser.id
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // In a real app, you would upload the file and create the justification
+    if (!selectedAbsence || !reason) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Create a new justification
+    const newJustification = {
+      id: `just-${Date.now()}`,
+      absenceId: selectedAbsence,
+      studentId: currentUser.id,
+      date: new Date().toISOString(),
+      reason,
+      documentUrl: file ? URL.createObjectURL(file) : undefined,
+      status: "pending" as const,
+    };
+    
+    // Update local state with the new justification
+    setLocalJustifications(prev => [...prev, newJustification]);
+    
     toast({
       title: "Réclamation soumise",
       description: "Votre justification a été envoyée avec succès.",
     });
     
+    // Automatically switch to the pending tab to show the new claim
+    setActiveTab("pending");
+    
+    // Reset form state
     setOpen(false);
     setSelectedAbsence(null);
     setReason("");
@@ -186,7 +214,7 @@ const StudentClaims = () => {
           </Dialog>
         </div>
         
-        <Tabs defaultValue="pending">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="pending" className="flex-1">En attente</TabsTrigger>
             <TabsTrigger value="resolved" className="flex-1">Traitées</TabsTrigger>
