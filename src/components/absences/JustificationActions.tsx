@@ -13,11 +13,12 @@ interface JustificationActionsProps {
 const JustificationActions = ({ justification, onStatusUpdate }: JustificationActionsProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [comment, setComment] = useState("");
 
   const handleApprove = async () => {
     setIsLoading(true);
     try {
-      await onStatusUpdate(justification.id, "approved");
+      await onStatusUpdate(justification.id, "approved", comment);
       toast({
         title: "Absence justifiée",
         description: "La réclamation a été approuvée avec succès.",
@@ -36,7 +37,7 @@ const JustificationActions = ({ justification, onStatusUpdate }: JustificationAc
   const handleReject = async () => {
     setIsLoading(true);
     try {
-      await onStatusUpdate(justification.id, "rejected");
+      await onStatusUpdate(justification.id, "rejected", comment);
       toast({
         title: "Réclamation rejetée",
         description: "La réclamation a été rejetée avec succès.",
