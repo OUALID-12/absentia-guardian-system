@@ -16,6 +16,16 @@ const SupervisorSidebar = () => {
 
   return (
     <aside className="fixed top-0 left-0 z-20 h-screen w-64 bg-white border-r shadow-sm pt-16 hidden md:block">
+      {/* Logo */}
+      <div className="absolute top-0 left-0 right-0 h-16 flex items-center justify-center border-b bg-success-50">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-success-600 flex items-center justify-center">
+            <span className="text-sm font-bold text-white">SA</span>
+          </div>
+          <h1 className="text-xl font-bold text-success-700">AbsTrack</h1>
+        </div>
+      </div>
+      
       <div className="flex flex-col items-center p-4 border-b">
         <div className="w-20 h-20 rounded-full bg-success-100 flex items-center justify-center mb-2">
           <span className="text-2xl font-bold text-success-700">

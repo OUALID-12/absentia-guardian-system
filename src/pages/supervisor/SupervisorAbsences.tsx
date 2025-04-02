@@ -17,7 +17,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -32,7 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import JustificationActions from "@/components/absences/JustificationActions";
+import { Justification } from "@/types";
 
 const SupervisorAbsences = () => {
   const { currentUser } = useAuth();
@@ -41,6 +42,9 @@ const SupervisorAbsences = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [selectedAbsence, setSelectedAbsence] = useState<any | null>(null);
+  const [localJustifications, setLocalJustifications] = useState([...justifications]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [commentInput, setCommentInput] = useState("");
   
   if (!currentUser) return null;
   
@@ -77,12 +81,17 @@ const SupervisorAbsences = () => {
   
   // Check if absence has a justification request
   const hasJustificationRequest = (absenceId: string) => {
-    return justifications.some(j => j.absenceId === absenceId);
+    return localJustifications.some(j => j.absenceId === absenceId);
+  };
+  
+  // Get justification for an absence
+  const getJustification = (absenceId: string) => {
+    return localJustifications.find(j => j.absenceId === absenceId);
   };
   
   // Get justification status for an absence
   const getJustificationStatus = (absenceId: string) => {
-    const justification = justifications.find(j => j.absenceId === absenceId);
+    const justification = localJustifications.find(j => j.absenceId === absenceId);
     return justification?.status || null;
   };
   
@@ -94,6 +103,49 @@ const SupervisorAbsences = () => {
       title: "Notification envoyée",
       description: `Un email a été envoyé aux parents de ${student?.firstName} ${student?.lastName}.`,
     });
+  };
+
+  // Handle justification status update
+  const handleJustificationStatusUpdate = async (
+    justificationId: string,
+    newStatus: "approved" | "rejected",
+    comment?: string
+  ) => {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Update local justifications state
+    const updatedJustifications = localJustifications.map(justification => {
+      if (justification.id === justificationId) {
+        const updatedJustification = {
+          ...justification,
+          status: newStatus,
+          supervisorComment: comment || justification.supervisorComment,
+          supervisorId: currentUser.id,
+        };
+        return updatedJustification;
+      }
+      return justification;
+    });
+
+    // Also update absences justified status if approved
+    const justification = localJustifications.find(j => j.id === justificationId);
+    if (justification && newStatus === "approved") {
+      // In a real app, you'd update the database here
+      // For this mock, we're just updating the local state
+      const absenceIndex = absences.findIndex(a => a.id === justification.absenceId);
+      if (absenceIndex >= 0) {
+        absences[absenceIndex] = {
+          ...absences[absenceIndex],
+          justified: true,
+          justificationId,
+        };
+      }
+    }
+
+    setLocalJustifications(updatedJustifications);
+    setDialogOpen(false);
+    setCommentInput("");
   };
 
   return (
@@ -173,6 +225,7 @@ const SupervisorAbsences = () => {
                     // Check if within 48 hours justification period
                     const isWithin48h = daysSince <= 2;
                     const hasRequest = hasJustificationRequest(absence.id);
+                    const justification = getJustification(absence.id);
                     const justificationStatus = getJustificationStatus(absence.id);
 
                     return (
@@ -210,73 +263,103 @@ const SupervisorAbsences = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
-                            {hasRequest && justificationStatus === "pending" && (
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    className="text-amber-600 border-amber-600 hover:bg-amber-50"
-                                    onClick={() => setSelectedAbsence(absence)}
-                                  >
-                                    <FileText className="h-4 w-4 mr-1" />
-                                    Voir réclamation
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Réclamation pour absence</DialogTitle>
-                                    <DialogDescription>
-                                      Examen de la justification soumise par l'étudiant
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  
-                                  <div className="grid gap-4 py-4">
-                                    <div className="grid gap-1">
-                                      <Label>Étudiant</Label>
-                                      <p className="text-sm font-medium">
-                                        {student?.firstName} {student?.lastName}
-                                      </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                            {hasRequest && justification && (
+                              <>
+                                <Dialog open={dialogOpen && selectedAbsence?.id === absence.id} onOpenChange={(open) => {
+                                  if (open) {
+                                    setSelectedAbsence(absence);
+                                  }
+                                  setDialogOpen(open);
+                                }}>
+                                  <DialogTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      className="text-amber-600 border-amber-600 hover:bg-amber-50"
+                                    >
+                                      <FileText className="h-4 w-4 mr-1" />
+                                      Voir réclamation
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Réclamation pour absence</DialogTitle>
+                                      <DialogDescription>
+                                        Examen de la justification soumise par l'étudiant
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    
+                                    <div className="grid gap-4 py-4">
                                       <div className="grid gap-1">
-                                        <Label>Date d'absence</Label>
-                                        <p className="text-sm">{absenceDate.toLocaleDateString()}</p>
+                                        <Label>Étudiant</Label>
+                                        <p className="text-sm font-medium">
+                                          {student?.firstName} {student?.lastName}
+                                        </p>
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid gap-1">
+                                          <Label>Date d'absence</Label>
+                                          <p className="text-sm">{absenceDate.toLocaleDateString()}</p>
+                                        </div>
+                                        <div className="grid gap-1">
+                                          <Label>Cours</Label>
+                                          <p className="text-sm">{absence.courseName}</p>
+                                        </div>
                                       </div>
                                       <div className="grid gap-1">
-                                        <Label>Cours</Label>
-                                        <p className="text-sm">{absence.courseName}</p>
+                                        <Label>Motif</Label>
+                                        <p className="text-sm p-3 bg-gray-50 rounded">
+                                          {justification?.reason}
+                                        </p>
+                                      </div>
+                                      <div className="grid gap-1">
+                                        <Label>Document</Label>
+                                        <Button variant="outline" size="sm" className="w-fit">
+                                          <FileText className="h-4 w-4 mr-1" />
+                                          Voir le document
+                                        </Button>
+                                      </div>
+                                      <div className="grid gap-1">
+                                        <Label htmlFor="comment">Commentaire</Label>
+                                        <Input 
+                                          id="comment" 
+                                          placeholder="Ajouter un commentaire (optionnel)" 
+                                          value={commentInput}
+                                          onChange={(e) => setCommentInput(e.target.value)}
+                                        />
                                       </div>
                                     </div>
-                                    <div className="grid gap-1">
-                                      <Label>Motif</Label>
-                                      <p className="text-sm p-3 bg-gray-50 rounded">
-                                        {justifications.find(j => j.absenceId === absence.id)?.reason}
-                                      </p>
+                                    
+                                    <div className="flex justify-end gap-2">
+                                      {justification?.status === "pending" && (
+                                        <>
+                                          <Button 
+                                            variant="danger" 
+                                            onClick={() => justification && handleJustificationStatusUpdate(justification.id, "rejected", commentInput)}
+                                          >
+                                            <X className="h-4 w-4 mr-1" />
+                                            Rejeter
+                                          </Button>
+                                          <Button 
+                                            variant="success"
+                                            onClick={() => justification && handleJustificationStatusUpdate(justification.id, "approved", commentInput)}
+                                          >
+                                            <Check className="h-4 w-4 mr-1" />
+                                            Approuver
+                                          </Button>
+                                        </>
+                                      )}
                                     </div>
-                                    <div className="grid gap-1">
-                                      <Label>Document</Label>
-                                      <Button variant="outline" size="sm" className="w-fit">
-                                        <FileText className="h-4 w-4 mr-1" />
-                                        Voir le document
-                                      </Button>
-                                    </div>
-                                    <div className="grid gap-1">
-                                      <Label htmlFor="comment">Commentaire</Label>
-                                      <Input id="comment" placeholder="Ajouter un commentaire (optionnel)" />
-                                    </div>
-                                  </div>
-                                  
-                                  <DialogFooter className="gap-2 sm:gap-0">
-                                    <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
-                                      Rejeter
-                                    </Button>
-                                    <Button className="bg-success-600 hover:bg-success-700">
-                                      Approuver
-                                    </Button>
-                                  </DialogFooter>
-                                </DialogContent>
-                              </Dialog>
+                                  </DialogContent>
+                                </Dialog>
+                                
+                                {justification.status === "pending" && (
+                                  <JustificationActions 
+                                    justification={justification as Justification} 
+                                    onStatusUpdate={handleJustificationStatusUpdate} 
+                                  />
+                                )}
+                              </>
                             )}
                             
                             {!absence.justified && !isWithin48h && !hasRequest && (
