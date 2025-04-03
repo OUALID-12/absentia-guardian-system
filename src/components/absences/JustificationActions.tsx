@@ -10,17 +10,20 @@ import { Label } from "@/components/ui/label";
 interface JustificationActionsProps {
   justification: Justification;
   onStatusUpdate: (justificationId: string, newStatus: "approved" | "rejected", comment?: string) => void;
+  size?: "sm" | "default";
 }
 
-const JustificationActions = ({ justification, onStatusUpdate }: JustificationActionsProps) => {
+const JustificationActions = ({ justification, onStatusUpdate, size = "default" }: JustificationActionsProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [comment, setComment] = useState("");
   const [showCommentField, setShowCommentField] = useState(false);
+  const [action, setAction] = useState<"approved" | "rejected" | null>(null);
 
   const handleAction = async (status: "approved" | "rejected") => {
     if (!showCommentField) {
       setShowCommentField(true);
+      setAction(status);
       return;
     }
 
@@ -34,6 +37,7 @@ const JustificationActions = ({ justification, onStatusUpdate }: JustificationAc
           : "La réclamation a été rejetée avec succès.",
       });
       setShowCommentField(false);
+      setAction(null);
     } catch (error) {
       toast({
         title: "Erreur",
@@ -69,36 +73,51 @@ const JustificationActions = ({ justification, onStatusUpdate }: JustificationAc
       )}
       
       <div className="flex space-x-2">
-        <Button 
-          variant="success" 
-          size="sm"
-          disabled={isLoading}
-          onClick={() => handleAction("approved")}
-          className="flex-1"
-        >
-          <Check className="w-4 h-4 mr-1" />
-          {showCommentField ? "Confirmer" : "Justifier"}
-        </Button>
-        
         {showCommentField ? (
-          <Button 
-            variant="outline" 
-            size="sm"
-            disabled={isLoading}
-            onClick={() => setShowCommentField(false)}
-          >
-            Annuler
-          </Button>
+          <>
+            <Button 
+              variant="success" 
+              size={size}
+              disabled={isLoading}
+              onClick={() => handleAction(action!)}
+              className="flex-1"
+            >
+              <Check className="w-4 h-4 mr-1" />
+              Confirmer
+            </Button>
+            <Button 
+              variant="outline" 
+              size={size}
+              disabled={isLoading}
+              onClick={() => {
+                setShowCommentField(false);
+                setAction(null);
+              }}
+            >
+              Annuler
+            </Button>
+          </>
         ) : (
-          <Button 
-            variant="danger" 
-            size="sm"
-            disabled={isLoading}
-            onClick={() => handleAction("rejected")}
-          >
-            <X className="w-4 h-4 mr-1" />
-            Rejeter
-          </Button>
+          <>
+            <Button 
+              variant="success" 
+              size={size}
+              disabled={isLoading}
+              onClick={() => handleAction("approved")}
+            >
+              <Check className="w-4 h-4 mr-1" />
+              Approuver
+            </Button>
+            <Button 
+              variant="danger" 
+              size={size}
+              disabled={isLoading}
+              onClick={() => handleAction("rejected")}
+            >
+              <X className="w-4 h-4 mr-1" />
+              Rejeter
+            </Button>
+          </>
         )}
       </div>
     </div>

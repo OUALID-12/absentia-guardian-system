@@ -1,227 +1,237 @@
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
-import { User, Mail, Lock, Camera } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
+import { CircleUserRound, Mail, Phone, School, Shield } from "lucide-react";
 
 const SupervisorProfile = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, updateUserProfile } = useAuth();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     firstName: currentUser?.firstName || "",
     lastName: currentUser?.lastName || "",
     email: currentUser?.email || "",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: ""
+    phone: "06 12 34 56 78", // Mock data
+    department: "Sciences", // Mock data
   });
   
-  const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const [isLoading, setIsLoading] = useState(false);
+  
+  if (!currentUser) return null;
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
   
-  const handleInfoSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    // In a real app, you would update the user info
-    toast({
-      title: "Profil mis à jour",
-      description: "Vos informations ont été mises à jour avec succès.",
-    });
-  };
-  
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.newPassword !== formData.confirmPassword) {
+    try {
+      // In a real app, you'd call an API here
+      // For this mock, we'll just simulate a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (typeof updateUserProfile === 'function') {
+        updateUserProfile({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+        });
+      }
+      
+      toast({
+        title: "Profil mis à jour",
+        description: "Vos informations ont été mises à jour avec succès.",
+      });
+    } catch (error) {
       toast({
         title: "Erreur",
-        description: "Les mots de passe ne correspondent pas.",
+        description: "Une erreur est survenue lors de la mise à jour du profil.",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
-    
-    // In a real app, you would update the password
-    toast({
-      title: "Mot de passe mis à jour",
-      description: "Votre mot de passe a été mis à jour avec succès.",
-    });
-    
-    setFormData({
-      ...formData,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: ""
-    });
   };
-
+  
+  const getInitials = () => {
+    return `${formData.firstName?.[0] || ""}${formData.lastName?.[0] || ""}`;
+  };
+  
   return (
     <MainLayout>
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Profil
-        </h1>
+        <h1 className="text-2xl font-bold">Profil</h1>
         
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card className="border-0 shadow-sm md:col-span-1">
-            <CardContent className="pt-6 flex flex-col items-center">
-              <div className="relative">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={currentUser?.avatar} alt={currentUser?.firstName} />
-                  <AvatarFallback className="bg-success-100 text-success-700 text-2xl">
-                    {currentUser?.firstName?.[0]}{currentUser?.lastName?.[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <button className="absolute bottom-0 right-0 rounded-full bg-success-500 text-white p-1.5 shadow-sm">
-                  <Camera className="h-4 w-4" />
-                </button>
-              </div>
-              
-              <h2 className="mt-4 text-xl font-semibold">
-                {currentUser?.firstName} {currentUser?.lastName}
-              </h2>
-              <p className="text-gray-500">{currentUser?.email}</p>
-              
-              <div className="w-full mt-6 pt-6 border-t">
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <User className="h-5 w-5 mr-3 text-gray-500" />
-                    <span>Superviseur</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Mail className="h-5 w-5 mr-3 text-gray-500" />
-                    <span>{currentUser?.email}</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="personal">
+          <TabsList className="mb-4">
+            <TabsTrigger value="personal">Informations personnelles</TabsTrigger>
+            <TabsTrigger value="security">Sécurité</TabsTrigger>
+          </TabsList>
           
-          <div className="md:col-span-2">
-            <Tabs defaultValue="info">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="info">Informations personnelles</TabsTrigger>
-                <TabsTrigger value="password">Mot de passe</TabsTrigger>
-              </TabsList>
+          <TabsContent value="personal">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {/* Profile Card */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle>Votre profil</CardTitle>
+                  <CardDescription>Informations générales de votre compte.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center pt-4">
+                  <Avatar className="h-24 w-24 mb-4">
+                    <AvatarImage src={currentUser.avatar} alt={`${formData.firstName} ${formData.lastName}`} />
+                    <AvatarFallback className="bg-success-100 text-success-700 text-xl dark:bg-success-900 dark:text-success-300">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <h3 className="text-lg font-medium">{formData.firstName} {formData.lastName}</h3>
+                  <p className="text-sm text-muted-foreground">Superviseur</p>
+                  
+                  <div className="w-full mt-6 space-y-3">
+                    <div className="flex items-center text-sm">
+                      <Mail className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <span className="text-muted-foreground">{formData.email}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Phone className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <span className="text-muted-foreground">{formData.phone}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <School className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <span className="text-muted-foreground">Département de {formData.department}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Shield className="w-4 h-4 mr-2 text-muted-foreground" />
+                      <span className="text-muted-foreground">Compte actif</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               
-              <TabsContent value="info" className="pt-6">
-                <Card className="border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Modifier vos informations</CardTitle>
-                  </CardHeader>
-                  <form onSubmit={handleInfoSubmit}>
-                    <CardContent className="space-y-4">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">Prénom</Label>
-                          <Input
-                            id="firstName"
-                            name="firstName"
-                            placeholder="Votre prénom"
-                            value={formData.firstName}
-                            onChange={handleInfoChange}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Nom</Label>
-                          <Input
-                            id="lastName"
-                            name="lastName"
-                            placeholder="Votre nom"
-                            value={formData.lastName}
-                            onChange={handleInfoChange}
-                          />
-                        </div>
-                      </div>
+              {/* Edit Profile Form */}
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Modifier le profil</CardTitle>
+                  <CardDescription>Mettez à jour vos informations personnelles.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="firstName">Prénom</Label>
                         <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder="votre@email.com"
-                          value={formData.email}
-                          onChange={handleInfoChange}
+                          id="firstName"
+                          name="firstName"
+                          placeholder="Prénom"
+                          value={formData.firstName}
+                          onChange={handleChange}
+                          required
                         />
                       </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button type="submit" className="bg-success-600 hover:bg-success-700">
-                        Enregistrer
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Nom</Label>
+                        <Input
+                          id="lastName"
+                          name="lastName"
+                          placeholder="Nom"
+                          value={formData.lastName}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Adresse e-mail</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="adresse@email.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Téléphone</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        placeholder="Numéro de téléphone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Département</Label>
+                      <Input
+                        id="department"
+                        name="department"
+                        placeholder="Département"
+                        value={formData.department}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={isLoading}>
+                        {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
                       </Button>
-                    </CardFooter>
+                    </div>
                   </form>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="password" className="pt-6">
-                <Card className="border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Changer votre mot de passe</CardTitle>
-                  </CardHeader>
-                  <form onSubmit={handlePasswordSubmit}>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-                        <Input
-                          id="currentPassword"
-                          name="currentPassword"
-                          type="password"
-                          placeholder="••••••"
-                          value={formData.currentPassword}
-                          onChange={handleInfoChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-                        <Input
-                          id="newPassword"
-                          name="newPassword"
-                          type="password"
-                          placeholder="••••••"
-                          value={formData.newPassword}
-                          onChange={handleInfoChange}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
-                        <Input
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type="password"
-                          placeholder="••••••"
-                          value={formData.confirmPassword}
-                          onChange={handleInfoChange}
-                        />
-                      </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-between">
-                      <p className="text-sm text-gray-500 flex items-center">
-                        <Lock className="h-4 w-4 mr-1" />
-                        Utilisez au moins 8 caractères
-                      </p>
-                      <Button type="submit" className="bg-success-600 hover:bg-success-700">
-                        Mettre à jour
-                      </Button>
-                    </CardFooter>
-                  </form>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="security">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sécurité du compte</CardTitle>
+                <CardDescription>Gérez les paramètres de sécurité de votre compte.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium">Changer le mot de passe</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Mettez à jour votre mot de passe pour sécuriser votre compte.
+                  </p>
+                  <Button variant="outline" className="mt-2">
+                    <CircleUserRound className="w-4 h-4 mr-2" />
+                    Modifier le mot de passe
+                  </Button>
+                </div>
+                
+                <div className="space-y-2 pt-4 border-t">
+                  <h3 className="text-lg font-medium">Authentification à deux facteurs</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Activez l'authentification à deux facteurs pour renforcer la sécurité de votre compte.
+                  </p>
+                  <Button variant="outline" className="mt-2">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Configurer l'A2F
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
