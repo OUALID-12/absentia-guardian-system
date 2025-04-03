@@ -69,14 +69,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 transition-colors duration-300">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <h1 className="text-4xl font-bold logo-text mb-1">Absentia</h1>
-          <p className="text-gray-600">Système Intelligent de Suivi des Absences</p>
+          <p className="text-gray-600 dark:text-gray-300">Système Intelligent de Suivi des Absences</p>
         </div>
         
-        <Card className="border-0 shadow-lg card-shadow overflow-hidden">
+        <Card className="border-0 shadow-lg card-shadow overflow-hidden dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="success-gradient text-white">
             <CardTitle className="text-center">Connexion</CardTitle>
             <CardDescription className="text-white/80 text-center">
@@ -89,9 +89,19 @@ const Login = () => {
             className="w-full"
           >
             <div className="px-6 mt-4">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="student">Étudiant</TabsTrigger>
-                <TabsTrigger value="supervisor">Surveillant</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 dark:bg-gray-700">
+                <TabsTrigger 
+                  value="student"
+                  className="dark:data-[state=active]:bg-success-600 dark:data-[state=active]:text-white"
+                >
+                  Étudiant
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="supervisor"
+                  className="dark:data-[state=active]:bg-success-600 dark:data-[state=active]:text-white"
+                >
+                  Surveillant
+                </TabsTrigger>
               </TabsList>
             </div>
             
@@ -104,11 +114,15 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel className="dark:text-gray-200">Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="votre@email.com" {...field} />
+                            <Input 
+                              placeholder="votre@email.com" 
+                              {...field} 
+                              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="dark:text-red-400" />
                         </FormItem>
                       )}
                     />
@@ -117,18 +131,23 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Mot de passe</FormLabel>
+                          <FormLabel className="dark:text-gray-200">Mot de passe</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="******" {...field} />
+                            <Input 
+                              type="password" 
+                              placeholder="******" 
+                              {...field} 
+                              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="dark:text-red-400" />
                         </FormItem>
                       )}
                     />
                     <input type="hidden" {...form.register("role")} />
                     <Button 
                       type="submit" 
-                      className="w-full bg-success-600 hover:bg-success-700"
+                      className="w-full bg-success-600 hover:bg-success-700 dark:bg-success-600 dark:hover:bg-success-500 dark:text-white"
                       disabled={isLoading}
                     >
                       {isLoading ? "Connexion en cours..." : "Se connecter"}
@@ -145,11 +164,15 @@ const Login = () => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel className="dark:text-gray-200">Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="surveillant@email.com" {...field} />
+                            <Input 
+                              placeholder="surveillant@email.com" 
+                              {...field} 
+                              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="dark:text-red-400" />
                         </FormItem>
                       )}
                     />
@@ -158,18 +181,23 @@ const Login = () => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Mot de passe</FormLabel>
+                          <FormLabel className="dark:text-gray-200">Mot de passe</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="******" {...field} />
+                            <Input 
+                              type="password" 
+                              placeholder="******" 
+                              {...field} 
+                              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder:text-gray-400"
+                            />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="dark:text-red-400" />
                         </FormItem>
                       )}
                     />
                     <input type="hidden" {...form.register("role")} />
                     <Button 
                       type="submit" 
-                      className="w-full bg-success-600 hover:bg-success-700"
+                      className="w-full bg-success-600 hover:bg-success-700 dark:bg-success-600 dark:hover:bg-success-500 dark:text-white"
                       disabled={isLoading}
                     >
                       {isLoading ? "Connexion en cours..." : "Se connecter"}
@@ -180,7 +208,7 @@ const Login = () => {
             </CardContent>
           </Tabs>
           
-          <CardFooter className="bg-gray-50 flex justify-center p-4 text-sm text-gray-600">
+          <CardFooter className="bg-gray-50 dark:bg-gray-700 flex justify-center p-4 text-sm text-gray-600 dark:text-gray-300">
             <div className="text-center">
               <p>Pour les démos: Utilisez</p>
               <p>Étudiant: student@example.com</p>
