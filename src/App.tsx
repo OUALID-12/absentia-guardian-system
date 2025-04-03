@@ -15,12 +15,14 @@ import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentAbsences from "./pages/student/StudentAbsences";
 import StudentClaims from "./pages/student/StudentClaims";
 import StudentProfile from "./pages/student/StudentProfile";
+import StudentSchedule from "./pages/student/StudentSchedule";
 
 // Supervisor Pages
 import SupervisorDashboard from "./pages/supervisor/SupervisorDashboard";
 import SupervisorAbsences from "./pages/supervisor/SupervisorAbsences";
 import SupervisorClasses from "./pages/supervisor/SupervisorClasses";
 import SupervisorProfile from "./pages/supervisor/SupervisorProfile";
+import SupervisorSchedules from "./pages/supervisor/SupervisorSchedules";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +59,11 @@ const App = () => (
                 <StudentProfile />
               </ProtectedRoute>
             } />
+            <Route path="/student/schedule" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentSchedule />
+              </ProtectedRoute>
+            } />
             
             {/* Supervisor Routes */}
             <Route path="/supervisor/dashboard" element={
@@ -77,6 +84,11 @@ const App = () => (
             <Route path="/supervisor/profile" element={
               <ProtectedRoute allowedRoles={["supervisor"]}>
                 <SupervisorProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/supervisor/schedules" element={
+              <ProtectedRoute allowedRoles={["supervisor"]}>
+                <SupervisorSchedules />
               </ProtectedRoute>
             } />
             

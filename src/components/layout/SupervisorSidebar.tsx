@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Calendar, Users, User } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, User, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SupervisorSidebar = () => {
@@ -11,6 +11,7 @@ const SupervisorSidebar = () => {
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/supervisor/dashboard" },
     { icon: Calendar, label: "Suivi des absences", path: "/supervisor/absences" },
     { icon: Users, label: "Classes", path: "/supervisor/classes" },
+    { icon: Clock, label: "Emploi du temps", path: "/supervisor/schedules" },
     { icon: User, label: "Profile", path: "/supervisor/profile" },
   ];
 

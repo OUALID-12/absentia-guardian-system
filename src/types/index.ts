@@ -46,3 +46,19 @@ export interface ClassData {
   name: string;
   department: string;
 }
+
+export interface ScheduleEntry {
+  id: string;
+  day: "Lundi" | "Mardi" | "Mercredi" | "Jeudi" | "Vendredi" | "Samedi";
+  startTime: string;
+  endTime: string;
+  courseId: string;
+  courseName: string;
+  className: string;
+  location: string;
+  teacher: string;
+}
+
+export interface WeeklySchedule {
+  [key: string]: ScheduleEntry[];
+}

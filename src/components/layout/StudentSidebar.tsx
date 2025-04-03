@@ -1,7 +1,7 @@
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calendar, Home, FileText, User } from "lucide-react";
+import { Calendar, Home, FileText, User, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const StudentSidebar = () => {
@@ -10,6 +10,7 @@ const StudentSidebar = () => {
   const navItems = [
     { icon: Home, label: "Tableau de bord", path: "/student/dashboard" },
     { icon: Calendar, label: "Historique d'absences", path: "/student/absences" },
+    { icon: Clock, label: "Emploi du temps", path: "/student/schedule" },
     { icon: FileText, label: "Réclamations", path: "/student/claims" },
     { icon: User, label: "Profile", path: "/student/profile" },
   ];
