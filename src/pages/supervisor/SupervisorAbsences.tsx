@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -152,13 +151,13 @@ const SupervisorAbsences = () => {
     <MainLayout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             Suivi des absences
           </h1>
           
           <div className="flex flex-col md:flex-row gap-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <Input 
                 className="pl-10 w-full md:w-auto" 
                 placeholder="Rechercher..." 
@@ -199,17 +198,17 @@ const SupervisorAbsences = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Étudiant</TableHead>
-                  <TableHead>Classe</TableHead>
-                  <TableHead>Cours</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="dark:border-gray-700">
+                  <TableHead className="dark:text-gray-300">Étudiant</TableHead>
+                  <TableHead className="dark:text-gray-300">Classe</TableHead>
+                  <TableHead className="dark:text-gray-300">Cours</TableHead>
+                  <TableHead className="dark:text-gray-300">Date</TableHead>
+                  <TableHead className="dark:text-gray-300">Statut</TableHead>
+                  <TableHead className="text-right dark:text-gray-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -229,33 +228,33 @@ const SupervisorAbsences = () => {
                     const justificationStatus = getJustificationStatus(absence.id);
 
                     return (
-                      <TableRow key={absence.id}>
-                        <TableCell className="font-medium">
+                      <TableRow key={absence.id} className="dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <TableCell className="font-medium dark:text-gray-200">
                           {student?.firstName} {student?.lastName}
                         </TableCell>
-                        <TableCell>{student?.class}</TableCell>
-                        <TableCell>{absence.courseName}</TableCell>
-                        <TableCell>{absenceDate.toLocaleDateString()}</TableCell>
+                        <TableCell className="dark:text-gray-300">{student?.class}</TableCell>
+                        <TableCell className="dark:text-gray-300">{absence.courseName}</TableCell>
+                        <TableCell className="dark:text-gray-300">{absenceDate.toLocaleDateString()}</TableCell>
                         <TableCell>
                           {absence.justified ? (
                             <div className="flex items-center">
-                              <Check className="h-4 w-4 mr-1 text-success-600" />
-                              <span className="text-success-600">Justifiée</span>
+                              <Check className="h-4 w-4 mr-1 text-success-600 dark:text-success-400" />
+                              <span className="text-success-600 dark:text-success-400">Justifiée</span>
                             </div>
                           ) : hasRequest ? (
                             <div className="flex items-center">
                               {justificationStatus === "pending" ? (
-                                <span className="text-amber-500">Réclamation en attente</span>
+                                <span className="text-amber-500 dark:text-amber-400">Réclamation en attente</span>
                               ) : (
-                                <span className={justificationStatus === "approved" ? "text-success-600" : "text-red-600"}>
+                                <span className={justificationStatus === "approved" ? "text-success-600 dark:text-success-400" : "text-red-600 dark:text-red-400"}>
                                   Réclamation {justificationStatus === "approved" ? "approuvée" : "rejetée"}
                                 </span>
                               )}
                             </div>
                           ) : (
                             <div className="flex items-center">
-                              <X className="h-4 w-4 mr-1 text-red-600" />
-                              <span className="text-red-600">
+                              <X className="h-4 w-4 mr-1 text-red-600 dark:text-red-400" />
+                              <span className="text-red-600 dark:text-red-400">
                                 Non justifiée {isWithin48h ? `(${daysSince}/2j)` : ""}
                               </span>
                             </div>
@@ -275,57 +274,58 @@ const SupervisorAbsences = () => {
                                     <Button 
                                       variant="outline" 
                                       size="sm"
-                                      className="text-amber-600 border-amber-600 hover:bg-amber-50"
+                                      className="text-amber-600 dark:text-amber-400 border-amber-600 dark:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                                     >
                                       <FileText className="h-4 w-4 mr-1" />
                                       Voir réclamation
                                     </Button>
                                   </DialogTrigger>
-                                  <DialogContent>
+                                  <DialogContent className="dark:bg-gray-800 dark:border-gray-700">
                                     <DialogHeader>
-                                      <DialogTitle>Réclamation pour absence</DialogTitle>
-                                      <DialogDescription>
+                                      <DialogTitle className="dark:text-gray-200">Réclamation pour absence</DialogTitle>
+                                      <DialogDescription className="dark:text-gray-400">
                                         Examen de la justification soumise par l'étudiant
                                       </DialogDescription>
                                     </DialogHeader>
                                     
                                     <div className="grid gap-4 py-4">
                                       <div className="grid gap-1">
-                                        <Label>Étudiant</Label>
-                                        <p className="text-sm font-medium">
+                                        <Label className="dark:text-gray-300">Étudiant</Label>
+                                        <p className="text-sm font-medium dark:text-gray-200">
                                           {student?.firstName} {student?.lastName}
                                         </p>
                                       </div>
                                       <div className="grid grid-cols-2 gap-4">
                                         <div className="grid gap-1">
-                                          <Label>Date d'absence</Label>
-                                          <p className="text-sm">{absenceDate.toLocaleDateString()}</p>
+                                          <Label className="dark:text-gray-300">Date d'absence</Label>
+                                          <p className="text-sm dark:text-gray-300">{absenceDate.toLocaleDateString()}</p>
                                         </div>
                                         <div className="grid gap-1">
-                                          <Label>Cours</Label>
-                                          <p className="text-sm">{absence.courseName}</p>
+                                          <Label className="dark:text-gray-300">Cours</Label>
+                                          <p className="text-sm dark:text-gray-300">{absence.courseName}</p>
                                         </div>
                                       </div>
                                       <div className="grid gap-1">
-                                        <Label>Motif</Label>
-                                        <p className="text-sm p-3 bg-gray-50 rounded">
+                                        <Label className="dark:text-gray-300">Motif</Label>
+                                        <p className="text-sm p-3 bg-gray-50 dark:bg-gray-700 rounded dark:text-gray-300">
                                           {justification?.reason}
                                         </p>
                                       </div>
                                       <div className="grid gap-1">
-                                        <Label>Document</Label>
-                                        <Button variant="outline" size="sm" className="w-fit">
+                                        <Label className="dark:text-gray-300">Document</Label>
+                                        <Button variant="outline" size="sm" className="w-fit dark:border-gray-600 dark:text-gray-300">
                                           <FileText className="h-4 w-4 mr-1" />
                                           Voir le document
                                         </Button>
                                       </div>
                                       <div className="grid gap-1">
-                                        <Label htmlFor="comment">Commentaire</Label>
+                                        <Label htmlFor="comment" className="dark:text-gray-300">Commentaire</Label>
                                         <Input 
                                           id="comment" 
                                           placeholder="Ajouter un commentaire (optionnel)" 
                                           value={commentInput}
                                           onChange={(e) => setCommentInput(e.target.value)}
+                                          className="dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:placeholder:text-gray-500"
                                         />
                                       </div>
                                     </div>
@@ -366,7 +366,7 @@ const SupervisorAbsences = () => {
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="text-red-600 border-red-600 hover:bg-red-50"
+                                className="text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                                 onClick={() => handleSendNotification(absence)}
                               >
                                 <Mail className="h-4 w-4 mr-1" />
@@ -380,7 +380,7 @@ const SupervisorAbsences = () => {
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-6 text-gray-500 dark:text-gray-400">
                       Aucune absence trouvée
                     </TableCell>
                   </TableRow>
