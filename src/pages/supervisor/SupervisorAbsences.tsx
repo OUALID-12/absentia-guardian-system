@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { absences, users, classes, justifications } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { Check, X, Mail, Search, FileText } from "lucide-react";
+import { Check, X, MessageSquare, Search, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -33,6 +34,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import JustificationActions from "@/components/absences/JustificationActions";
 import { Justification } from "@/types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const SupervisorAbsences = () => {
   const { currentUser } = useAuth();
@@ -44,6 +50,8 @@ const SupervisorAbsences = () => {
   const [localJustifications, setLocalJustifications] = useState([...justifications]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [commentInput, setCommentInput] = useState("");
+  const [smsMessage, setSmsMessage] = useState("");
+  const [smsPopoverOpen, setSmsPopoverOpen] = useState(false);
   
   if (!currentUser) return null;
   
@@ -94,14 +102,27 @@ const SupervisorAbsences = () => {
     return justification?.status || null;
   };
   
-  // Handle send email notification
+  // Handle send SMS notification
   const handleSendNotification = (absence: any) => {
     const student = users.find(u => u.id === absence.studentId);
+    setSmsMessage(`Bonjour, votre enfant ${student?.firstName} ${student?.lastName} a été absent le ${new Date(absence.date).toLocaleDateString()} au cours de ${absence.courseName}.`);
+    setSelectedAbsence(absence);
+    setSmsPopoverOpen(true);
+  };
+
+  // Handle sending the SMS
+  const handleSendSms = () => {
+    if (!selectedAbsence) return;
+    
+    const student = users.find(u => u.id === selectedAbsence.studentId);
     
     toast({
-      title: "Notification envoyée",
-      description: `Un email a été envoyé aux parents de ${student?.firstName} ${student?.lastName}.`,
+      title: "SMS envoyé",
+      description: `Un SMS a été envoyé aux parents de ${student?.firstName} ${student?.lastName}.`,
     });
+    
+    setSmsPopoverOpen(false);
+    setSmsMessage("");
   };
 
   // Handle justification status update
@@ -354,24 +375,71 @@ const SupervisorAbsences = () => {
                                 </Dialog>
                                 
                                 {justification.status === "pending" && (
-                                  <JustificationActions 
-                                    justification={justification as Justification} 
-                                    onStatusUpdate={handleJustificationStatusUpdate} 
-                                  />
+                                  <div className="flex space-x-2">
+                                    <Button 
+                                      variant="success" 
+                                      size="sm"
+                                      onClick={() => handleJustificationStatusUpdate(justification.id, "approved")}
+                                    >
+                                      <Check className="h-4 w-4 mr-1" />
+                                      Approuver
+                                    </Button>
+                                    <Button 
+                                      variant="danger" 
+                                      size="sm"
+                                      onClick={() => handleJustificationStatusUpdate(justification.id, "rejected")}
+                                    >
+                                      <X className="h-4 w-4 mr-1" />
+                                      Rejeter
+                                    </Button>
+                                  </div>
                                 )}
                               </>
                             )}
                             
                             {!absence.justified && !isWithin48h && !hasRequest && (
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="text-red-600 dark:text-red-400 border-red-600 dark:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                onClick={() => handleSendNotification(absence)}
-                              >
-                                <Mail className="h-4 w-4 mr-1" />
-                                Notifier
-                              </Button>
+                              <Popover open={smsPopoverOpen && selectedAbsence?.id === absence.id} onOpenChange={(open) => {
+                                if (!open) {
+                                  setSmsPopoverOpen(false);
+                                }
+                              }}>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                    onClick={() => handleSendNotification(absence)}
+                                  >
+                                    <MessageSquare className="h-4 w-4 mr-1" />
+                                    Notifier par SMS
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80 p-4 dark:bg-gray-800 dark:border-gray-700">
+                                  <div className="space-y-4">
+                                    <div>
+                                      <h4 className="font-medium mb-1 dark:text-gray-200">Envoyer un SMS aux parents</h4>
+                                      <p className="text-sm text-gray-600 dark:text-gray-400">Ce message sera envoyé aux parents concernant l'absence non justifiée.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="sms-message" className="dark:text-gray-300">Message</Label>
+                                      <Textarea 
+                                        id="sms-message"
+                                        value={smsMessage}
+                                        onChange={(e) => setSmsMessage(e.target.value)}
+                                        className="min-h-24 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                      />
+                                    </div>
+                                    <div className="flex justify-end space-x-2">
+                                      <Button variant="outline" size="sm" onClick={() => setSmsPopoverOpen(false)} className="dark:border-gray-600 dark:text-gray-300">
+                                        Annuler
+                                      </Button>
+                                      <Button size="sm" onClick={handleSendSms}>
+                                        Envoyer
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                             )}
                           </div>
                         </TableCell>

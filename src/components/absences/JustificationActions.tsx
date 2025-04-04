@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Justification } from "@/types";

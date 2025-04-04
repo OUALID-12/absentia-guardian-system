@@ -9,6 +9,7 @@ export interface User {
   role: UserRole;
   avatar?: string;
   class?: string; // For students
+  phone?: string; // Added for SMS notifications
 }
 
 export interface Absence {
